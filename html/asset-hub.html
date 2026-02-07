@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Asset Library Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body {
+        background-color: #f8fafc;
+      }
+      .asset-card:hover .overlay {
+        opacity: 1;
+      }
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: #f1f1f1;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+      }
+    </style>
+  </head>
+  <body class="text-slate-800 font-sans">
+    <!-- Header & Navigation -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+          <div class="flex items-center gap-2">
+            <div
+              class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center"
+            >
+              <svg
+                class="w-5 h-5 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                ></path>
+              </svg>
+            </div>
+            <span class="text-xl font-bold tracking-tight text-slate-900"
+              >AssetHub</span
+            >
+          </div>
+
+          <div class="flex-1 max-w-md mx-8 hidden md:block">
+            <div class="relative">
+              <span
+                class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400"
+              >
+                <svg
+                  class="h-5 w-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  ></path>
+                </svg>
+              </span>
+              <input
+                type="text"
+                id="searchInput"
+                placeholder="Search assets by name or tag..."
+                class="block w-full pl-10 pr-3 py-2 border border-slate-300 rounded-md leading-5 bg-slate-50 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all"
+              />
+            </div>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <button
+              class="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 transition-colors shadow-sm"
+            >
+              Upload Asset
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div class="flex flex-col lg:flex-row gap-8">
+        <!-- Sidebar Filters -->
+        <aside class="w-full lg:w-64 flex-shrink-0">
+          <nav class="space-y-8">
+            <div>
+              <h3
+                class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-4"
+              >
+                Categories
+              </h3>
+              <div class="space-y-1" id="categoryFilters">
+                <button
+                  onclick="filterByCategory('all')"
+                  class="w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md bg-indigo-50 text-indigo-700 group active-filter"
+                >
+                  All Assets
+                </button>
+                <button
+                  onclick="filterByCategory('Logo')"
+                  class="w-full flex items-center px-3 py-2 text-sm font-medium rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+                >
+                  Logos
+                </button>
+                <button
+                  onclick="filterByCategory('Icon')"
+                  class="w-full flex items-center px-3 py-2 text-sm font-medium rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+                >
+                  UI Icons
+                </button>
+                <button
+                  onclick="filterByCategory('Illustration')"
+                  class="w-full flex items-center px-3 py-2 text-sm font-medium rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+                >
+                  Illustrations
+                </button>
+                <button
+                  onclick="filterByCategory('Photo')"
+                  class="w-full flex items-center px-3 py-2 text-sm font-medium rounded-md text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+                >
+                  Photography
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <h3
+                class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-4"
+              >
+                File Format
+              </h3>
+              <div class="space-y-2">
+                <label class="flex items-center text-sm text-slate-600">
+                  <input
+                    type="checkbox"
+                    class="rounded text-indigo-600 mr-2 focus:ring-indigo-500"
+                  />
+                  SVG
+                </label>
+                <label class="flex items-center text-sm text-slate-600">
+                  <input
+                    type="checkbox"
+                    class="rounded text-indigo-600 mr-2 focus:ring-indigo-500"
+                  />
+                  PNG
+                </label>
+                <label class="flex items-center text-sm text-slate-600">
+                  <input
+                    type="checkbox"
+                    class="rounded text-indigo-600 mr-2 focus:ring-indigo-500"
+                  />
+                  JPG
+                </label>
+              </div>
+            </div>
+          </nav>
+        </aside>
+
+        <!-- Asset Grid -->
+        <div class="flex-1">
+          <div class="flex justify-between items-end mb-6">
+            <div>
+              <h2
+                class="text-2xl font-bold text-slate-900"
+                id="currentViewTitle"
+              >
+                All Assets
+              </h2>
+              <p class="text-slate-500 text-sm mt-1" id="assetCount">
+                Showing 8 assets
+              </p>
+            </div>
+            <div class="flex gap-2">
+              <select
+                class="bg-white border border-slate-300 text-slate-600 text-sm rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+                <option>Sort by: Newest</option>
+                <option>Sort by: Name A-Z</option>
+                <option>Sort by: Size</option>
+              </select>
+            </div>
+          </div>
+
+          <div
+            id="assetGrid"
+            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+          >
+            <!-- Cards will be injected here -->
+          </div>
+
+          <!-- Empty State -->
+          <div
+            id="emptyState"
+            class="hidden flex-col items-center justify-center py-20 text-center"
+          >
+            <div
+              class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mb-4"
+            >
+              <svg
+                class="w-10 h-10 text-slate-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                ></path>
+              </svg>
+            </div>
+            <h3 class="text-lg font-medium text-slate-900">No assets found</h3>
+            <p class="text-slate-500">
+              Try adjusting your search or filters to find what you're looking
+              for.
+            </p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Modal Placeholder -->
+    <div
+      id="assetModal"
+      class="fixed inset-0 z-[60] hidden overflow-y-auto"
+      aria-labelledby="modal-title"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div
+        class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0"
+      >
+        <div
+          class="fixed inset-0 bg-slate-900 bg-opacity-75 transition-opacity"
+          aria-hidden="true"
+          onclick="closeModal()"
+        ></div>
+        <span
+          class="hidden sm:inline-block sm:align-middle sm:h-screen"
+          aria-hidden="true"
+          >&#8203;</span
+        >
+        <div
+          id="modalContent"
+          class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full"
+        >
+          <!-- Modal content injected dynamically -->
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Mock data representing your static assets
+      const assets = [
+        {
+          id: 1,
+          name: "Company Logo Primary",
+          type: "Logo",
+          format: "SVG",
+          size: "12 KB",
+          dimensions: "512x512",
+          color: "#4F46E5",
+          url: "https://images.unsplash.com/photo-1614850523296-d8c1af93d400?w=400&h=400&fit=crop",
+        },
+        {
+          id: 2,
+          name: "User Avatar Default",
+          type: "Icon",
+          format: "PNG",
+          size: "45 KB",
+          dimensions: "256x256",
+          color: "#64748B",
+          url: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400&h=400&fit=crop",
+        },
+        {
+          id: 3,
+          name: "Summer Sale Banner",
+          type: "Illustration",
+          format: "JPG",
+          size: "1.2 MB",
+          dimensions: "1920x1080",
+          color: "#F59E0B",
+          url: "https://images.unsplash.com/photo-1557683316-973673baf926?w=400&h=250&fit=crop",
+        },
+        {
+          id: 4,
+          name: "Search Icon Bold",
+          type: "Icon",
+          format: "SVG",
+          size: "4 KB",
+          dimensions: "24x24",
+          color: "#000000",
+          url: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=400&h=400&fit=crop",
+        },
+        {
+          id: 5,
+          name: "Dark Mode Toggle",
+          type: "Icon",
+          format: "SVG",
+          size: "8 KB",
+          dimensions: "32x32",
+          color: "#1E293B",
+          url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&h=400&fit=crop",
+        },
+        {
+          id: 6,
+          name: "Product Launch Photo",
+          type: "Photo",
+          format: "JPG",
+          size: "3.4 MB",
+          dimensions: "4000x3000",
+          color: "Multi",
+          url: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=300&fit=crop",
+        },
+        {
+          id: 7,
+          name: "Mobile App Wireframe",
+          type: "Illustration",
+          format: "PNG",
+          size: "890 KB",
+          dimensions: "1080x1920",
+          color: "#E2E8F0",
+          url: "https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?w=400&h=500&fit=crop",
+        },
+        {
+          id: 8,
+          name: "Brand Symbol Mono",
+          type: "Logo",
+          format: "SVG",
+          size: "5 KB",
+          dimensions: "128x128",
+          color: "#000000",
+          url: "https://images.unsplash.com/photo-1620288627223-53302f4e8c74?w=400&h=400&fit=crop",
+        },
+      ];
+
+      let currentCategory = "all";
+      let searchQuery = "";
+
+      const grid = document.getElementById("assetGrid");
+      const emptyState = document.getElementById("emptyState");
+      const searchInput = document.getElementById("searchInput");
+      const assetCountText = document.getElementById("assetCount");
+      const viewTitle = document.getElementById("currentViewTitle");
+
+      function renderAssets() {
+        const filtered = assets.filter((asset) => {
+          const matchesCategory =
+            currentCategory === "all" || asset.type === currentCategory;
+          const matchesSearch =
+            asset.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            asset.type.toLowerCase().includes(searchQuery.toLowerCase());
+          return matchesCategory && matchesSearch;
+        });
+
+        grid.innerHTML = "";
+
+        if (filtered.length === 0) {
+          grid.classList.add("hidden");
+          emptyState.classList.remove("hidden");
+          emptyState.classList.add("flex");
+        } else {
+          grid.classList.remove("hidden");
+          emptyState.classList.add("hidden");
+          emptyState.classList.remove("flex");
+
+          filtered.forEach((asset) => {
+            const card = document.createElement("div");
+            card.className =
+              "asset-card bg-white rounded-xl border border-slate-200 overflow-hidden hover:shadow-lg transition-all cursor-pointer group";
+            card.onclick = () => openModal(asset);
+
+            card.innerHTML = `
+                        <div class="aspect-square bg-slate-100 relative overflow-hidden flex items-center justify-center p-4">
+                            <img src="${asset.url}" alt="${asset.name}" class="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-300">
+                            <div class="overlay absolute inset-0 bg-slate-900/40 opacity-0 flex items-center justify-center transition-opacity">
+                                <span class="bg-white text-slate-900 text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">Quick View</span>
+                            </div>
+                        </div>
+                        <div class="p-3">
+                            <h4 class="text-sm font-semibold text-slate-900 truncate">${asset.name}</h4>
+                            <div class="flex items-center justify-between mt-1">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">${asset.type} • ${asset.format}</span>
+                                <span class="text-[10px] text-slate-400">${asset.size}</span>
+                            </div>
+                        </div>
+                    `;
+            grid.appendChild(card);
+          });
+        }
+
+        assetCountText.innerText = `Showing ${filtered.length} assets`;
+      }
+
+      function filterByCategory(cat) {
+        currentCategory = cat;
+        viewTitle.innerText = cat === "all" ? "All Assets" : `${cat}s`;
+
+        // Update active state in UI
+        document.querySelectorAll("#categoryFilters button").forEach((btn) => {
+          btn.classList.remove(
+            "bg-indigo-50",
+            "text-indigo-700",
+            "active-filter",
+          );
+          btn.classList.add("text-slate-600");
+          if (
+            btn.innerText.includes(cat) ||
+            (cat === "all" && btn.innerText.includes("All"))
+          ) {
+            btn.classList.add(
+              "bg-indigo-50",
+              "text-indigo-700",
+              "active-filter",
+            );
+            btn.classList.remove("text-slate-600");
+          }
+        });
+
+        renderAssets();
+      }
+
+      function openModal(asset) {
+        const modal = document.getElementById("assetModal");
+        const content = document.getElementById("modalContent");
+
+        content.innerHTML = `
+                <div class="bg-white">
+                    <div class="flex flex-col md:flex-row">
+                        <div class="md:w-1/2 bg-slate-50 flex items-center justify-center p-8 border-b md:border-b-0 md:border-r border-slate-200">
+                            <img src="${asset.url}" class="max-w-full max-h-96 object-contain rounded shadow-sm" alt="${asset.name}">
+                        </div>
+                        <div class="md:w-1/2 p-6">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="text-xl font-bold text-slate-900">${asset.name}</h3>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 mt-2">
+                                        ${asset.type}
+                                    </span>
+                                </div>
+                                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-500">
+                                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                </button>
+                            </div>
+
+                            <div class="mt-8 space-y-4">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="p-3 bg-slate-50 rounded-lg">
+                                        <p class="text-xs text-slate-500 font-medium uppercase tracking-wider">Format</p>
+                                        <p class="text-sm font-semibold text-slate-900">${asset.format}</p>
+                                    </div>
+                                    <div class="p-3 bg-slate-50 rounded-lg">
+                                        <p class="text-xs text-slate-500 font-medium uppercase tracking-wider">Dimensions</p>
+                                        <p class="text-sm font-semibold text-slate-900">${asset.dimensions} px</p>
+                                    </div>
+                                    <div class="p-3 bg-slate-50 rounded-lg">
+                                        <p class="text-xs text-slate-500 font-medium uppercase tracking-wider">File Size</p>
+                                        <p class="text-sm font-semibold text-slate-900">${asset.size}</p>
+                                    </div>
+                                    <div class="p-3 bg-slate-50 rounded-lg">
+                                        <p class="text-xs text-slate-500 font-medium uppercase tracking-wider">Primary Color</p>
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-4 h-4 rounded-full border border-slate-200" style="background: ${asset.color}"></div>
+                                            <p class="text-sm font-semibold text-slate-900 uppercase">${asset.color}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-10 flex gap-3">
+                                <button onclick="copyToClipboard('${asset.url}')" class="flex-1 bg-slate-100 text-slate-900 px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-slate-200 transition-colors flex items-center justify-center gap-2">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                                    Copy Link
+                                </button>
+                                <a href="${asset.url}" target="_blank" class="flex-1 bg-indigo-600 text-white px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                    Download
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+        modal.classList.remove("hidden");
+        document.body.classList.add("overflow-hidden");
+      }
+
+      function closeModal() {
+        document.getElementById("assetModal").classList.add("hidden");
+        document.body.classList.remove("overflow-hidden");
+      }
+
+      function copyToClipboard(text) {
+        const tempInput = document.createElement("input");
+        tempInput.value = text;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand("copy");
+        document.body.removeChild(tempInput);
+
+        const btn = event.currentTarget;
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = "Copied!";
+        btn.classList.add("bg-green-100", "text-green-700");
+        setTimeout(() => {
+          btn.innerHTML = originalHTML;
+          btn.classList.remove("bg-green-100", "text-green-700");
+        }, 2000);
+      }
+
+      searchInput.addEventListener("input", (e) => {
+        searchQuery = e.target.value;
+        renderAssets();
+      });
+
+      // Initial render
+      renderAssets();
+    </script>
+  </body>
+</html>

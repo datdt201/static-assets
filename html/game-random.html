@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Đấu Trường Master - Pro Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap");
+      body {
+        font-family: "Plus Jakarta Sans", sans-serif;
+        background-color: #f8fafc;
+      }
+      .animate-pop {
+        animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      }
+      @keyframes pop {
+        0% {
+          transform: scale(0.8);
+          opacity: 0;
+        }
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+      .slot-machine-num {
+        transition: all 0.05s ease-in-out;
+      }
+      .is-rolling {
+        filter: blur(2px);
+        transform: scale(1.1);
+        color: #6366f1;
+      }
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 4px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #e2e8f0;
+        border-radius: 10px;
+      }
+      .winner-glow {
+        box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+      }
+    </style>
+  </head>
+  <body class="min-h-screen p-4 md:p-8">
+    <div
+      class="max-w-6xl mx-auto bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border border-gray-100"
+    >
+      <!-- Header -->
+      <div
+        class="bg-indigo-900 p-8 text-white text-center relative overflow-hidden"
+      >
+        <div class="relative z-10">
+          <h1 class="text-3xl font-extrabold tracking-tight">
+            Đấu Trường Master
+          </h1>
+          <p class="text-indigo-300 mt-2">
+            Hiệu ứng quay số Casino - Thắng +1, Thua -1, Số 10: Master & x2
+          </p>
+        </div>
+        <div
+          class="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -mr-24 -mt-24"
+        ></div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12">
+        <!-- Sidebar: Controls -->
+        <div
+          class="lg:col-span-4 p-6 border-b lg:border-b-0 lg:border-r border-gray-100 space-y-6 bg-slate-50/50"
+        >
+          <!-- Add Player -->
+          <div>
+            <label
+              class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3"
+              >Thêm người chơi</label
+            >
+            <div class="flex gap-2">
+              <input
+                type="text"
+                id="nameInput"
+                placeholder="Nhập tên..."
+                class="flex-1 px-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none font-medium"
+              />
+              <button
+                onclick="addPerson()"
+                class="bg-indigo-600 text-white px-5 py-3 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-md active:scale-95"
+              >
+                +
+              </button>
+            </div>
+          </div>
+
+          <!-- Master Selection -->
+          <div class="space-y-3">
+            <label
+              class="block text-xs font-black text-orange-500 uppercase tracking-widest flex items-center gap-2"
+            >
+              👑 Master hiện tại
+            </label>
+            <select
+              id="masterSelect"
+              class="w-full px-4 py-3 rounded-xl bg-white border-2 border-orange-200 font-bold text-gray-700 outline-none shadow-sm focus:border-orange-400 appearance-none"
+            ></select>
+          </div>
+
+          <!-- Auto Play Config -->
+          <div
+            class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm space-y-4"
+          >
+            <label
+              class="block text-xs font-black text-indigo-600 uppercase tracking-widest"
+              >Cài đặt quay</label
+            >
+            <div>
+              <span class="text-xs text-gray-500 mb-2 block">Số lần quay:</span>
+              <input
+                type="number"
+                id="roundsInput"
+                value="1"
+                min="1"
+                max="500"
+                class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none font-bold"
+              />
+            </div>
+            <button
+              onclick="startRolling()"
+              id="rollBtn"
+              class="w-full bg-emerald-500 hover:bg-emerald-600 disabled:bg-gray-300 text-white py-4 rounded-xl font-black text-lg shadow-xl shadow-emerald-100 transition-all active:scale-95 flex items-center justify-center gap-2"
+            >
+              <span id="btnIcon">🎲</span>
+              <span id="btnText">BẮT ĐẦU QUAY</span>
+            </button>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <button
+              onclick="resetScores()"
+              class="py-2.5 bg-white border border-gray-200 text-gray-500 rounded-xl font-bold hover:bg-gray-50 transition-all text-xs"
+            >
+              🔄 Reset Điểm
+            </button>
+            <button
+              onclick="clearAll()"
+              class="py-2.5 bg-white border border-gray-200 text-rose-500 font-bold hover:bg-rose-50 rounded-xl transition-all text-xs"
+            >
+              🗑️ Xóa Hết
+            </button>
+          </div>
+
+          <div id="nameBadgeContainer" class="flex flex-wrap gap-2 pt-2"></div>
+        </div>
+
+        <!-- Main Content: Stats & Logs -->
+        <div class="lg:col-span-8 p-6 space-y-6 flex flex-col h-full bg-white">
+          <!-- Leaderboard Grid -->
+          <div class="bg-slate-50 rounded-3xl p-6 border border-slate-100">
+            <div class="flex justify-between items-center mb-4">
+              <h2
+                class="text-sm font-black text-gray-400 uppercase tracking-widest"
+              >
+                Bảng xếp hạng
+              </h2>
+              <span
+                id="playerCount"
+                class="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-lg"
+              ></span>
+            </div>
+            <div id="scoreBoard" class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <!-- Scores injected here -->
+            </div>
+          </div>
+
+          <!-- Live Results / Simulation -->
+          <div
+            id="resultsWrapper"
+            class="hidden flex-1 space-y-4 flex flex-col min-h-0"
+          >
+            <div class="flex items-center justify-between">
+              <h2
+                class="text-sm font-black text-gray-400 uppercase tracking-widest"
+                id="roundTitle"
+              >
+                Kết quả lượt này
+              </h2>
+              <div
+                id="roundInfo"
+                class="text-xs font-bold text-gray-500 italic"
+              ></div>
+            </div>
+
+            <div
+              id="newMasterNotice"
+              class="hidden bg-yellow-400 text-yellow-900 p-3 rounded-xl font-black text-center text-xs shadow animate-pop"
+            ></div>
+
+            <div id="masterResultSlot"></div>
+
+            <div
+              id="playersList"
+              class="grid grid-cols-1 sm:grid-cols-2 gap-3 overflow-y-auto custom-scrollbar pr-1 max-h-[300px]"
+            >
+              <!-- Player cards -->
+            </div>
+          </div>
+
+          <!-- Empty State -->
+          <div
+            id="emptyState"
+            class="flex-1 flex items-center justify-center text-center py-20 border-2 border-dashed border-slate-100 rounded-3xl"
+          >
+            <div class="text-slate-300">
+              <div class="text-6xl mb-4">🎰</div>
+              <p class="font-bold text-lg">Chưa có người chơi nào tham gia</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const initialNames = [
+        "Đạt",
+        "Vinh",
+        "An",
+        "Hùng",
+        "Hải",
+        "Ngọc",
+        "Tuấn",
+        "Cương",
+        "Tiến",
+        "Tuấn_2",
+      ];
+      let players = initialNames.map((name) => ({ name, score: 0 }));
+      let currentMasterName = players[0].name;
+      let isRolling = false;
+
+      const nameInput = document.getElementById("nameInput");
+      const badgeContainer = document.getElementById("nameBadgeContainer");
+      const masterSelect = document.getElementById("masterSelect");
+      const scoreBoard = document.getElementById("scoreBoard");
+      const resultsWrapper = document.getElementById("resultsWrapper");
+      const newMasterNotice = document.getElementById("newMasterNotice");
+      const rollBtn = document.getElementById("rollBtn");
+      const roundsInput = document.getElementById("roundsInput");
+
+      window.onload = () => renderUI();
+      nameInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") addPerson();
+      });
+
+      function addPerson() {
+        const name = nameInput.value.trim();
+        if (!name || players.some((p) => p.name === name)) return;
+        players.push({ name, score: 0 });
+        if (players.length === 1) currentMasterName = name;
+        nameInput.value = "";
+        renderUI();
+      }
+
+      function removePerson(name) {
+        players = players.filter((p) => p.name !== name);
+        if (currentMasterName === name && players.length > 0)
+          currentMasterName = players[0].name;
+        renderUI();
+      }
+
+      function resetScores() {
+        players.forEach((p) => (p.score = 0));
+        resultsWrapper.classList.add("hidden");
+        renderUI();
+      }
+
+      function clearAll() {
+        players = [];
+        currentMasterName = "";
+        resultsWrapper.classList.add("hidden");
+        renderUI();
+      }
+
+      function renderUI() {
+        badgeContainer.innerHTML = "";
+        masterSelect.innerHTML = "";
+        scoreBoard.innerHTML = "";
+        document.getElementById("playerCount").textContent =
+          `${players.length} người chơi`;
+        document
+          .getElementById("emptyState")
+          .classList.toggle("hidden", players.length > 0);
+
+        const sorted = [...players].sort((a, b) => b.score - a.score);
+
+        players.forEach((p) => {
+          const badge = document.createElement("div");
+          badge.className =
+            "bg-white text-gray-500 px-3 py-1 rounded-lg flex items-center gap-2 border border-gray-200 text-[10px] font-bold shadow-sm";
+          badge.innerHTML = `${p.name} <button onclick="removePerson('${p.name}')" class="text-gray-300 hover:text-red-500">&times;</button>`;
+          badgeContainer.appendChild(badge);
+
+          const opt = document.createElement("option");
+          opt.value = p.name;
+          opt.textContent = p.name;
+          opt.selected = p.name === currentMasterName;
+          masterSelect.appendChild(opt);
+        });
+
+        sorted.forEach((p) => {
+          const isMaster = p.name === currentMasterName;
+          const card = document.createElement("div");
+          card.className = `p-3 rounded-xl border-2 transition-all ${isMaster ? "bg-orange-50 border-orange-400" : "bg-white border-slate-50"}`;
+          card.innerHTML = `
+                    <div class="flex flex-col">
+                        <span class="text-[9px] font-black ${isMaster ? "text-orange-500" : "text-slate-300"} uppercase truncate">${isMaster ? "👑 MASTER" : "PLAYER"}</span>
+                        <span class="font-bold text-slate-700 text-sm truncate">${p.name}</span>
+                        <span class="text-lg font-black text-indigo-600">${p.score}</span>
+                    </div>
+                `;
+          scoreBoard.appendChild(card);
+        });
+
+        rollBtn.disabled = players.length < 2 || isRolling;
+      }
+
+      masterSelect.addEventListener("change", (e) => {
+        currentMasterName = e.target.value;
+        renderUI();
+      });
+
+      async function startRolling() {
+        if (isRolling) return;
+        isRolling = true;
+        rollBtn.disabled = true;
+        document.getElementById("btnText").textContent = "ĐANG QUAY...";
+        document.getElementById("btnIcon").className = "animate-spin";
+
+        const numRounds = parseInt(roundsInput.value) || 1;
+        resultsWrapper.classList.remove("hidden");
+
+        // Nếu quay nhiều lượt, lượt cuối cùng mới có hiệu ứng chậm
+        if (numRounds > 1) {
+          // Quay nhanh các lượt đầu
+          for (let i = 0; i < numRounds - 1; i++) {
+            simulateRound();
+          }
+        }
+
+        // Hiệu ứng "chạy số" cho lượt cuối (hoặc lượt duy nhất)
+        await animateLastRound();
+
+        const finalResults = simulateRound();
+        displayRound(finalResults);
+
+        isRolling = false;
+        document.getElementById("btnText").textContent = "BẮT ĐẦU QUAY";
+        document.getElementById("btnIcon").className = "";
+        document.getElementById("roundInfo").textContent =
+          `Tổng: ${numRounds} lượt`;
+        renderUI();
+      }
+
+      async function animateLastRound() {
+        const masterSlot = document.getElementById("masterResultSlot");
+        const list = document.getElementById("playersList");
+        list.innerHTML = "";
+        newMasterNotice.classList.add("hidden");
+
+        // Tạo khung sườn cho hiệu ứng
+        masterSlot.innerHTML = `
+                <div class="bg-slate-900 text-white p-5 rounded-2xl flex justify-between items-center">
+                    <div><span class="text-[9px] text-orange-400 font-black uppercase tracking-widest">Master</span><h3 class="text-xl font-black">${currentMasterName}</h3></div>
+                    <div id="masterAnimNum" class="bg-white/10 w-12 h-12 flex items-center justify-center rounded-xl font-black text-2xl border border-white/20 slot-machine-num is-rolling">?</div>
+                </div>
+            `;
+
+        players
+          .filter((p) => p.name !== currentMasterName)
+          .forEach((p) => {
+            const card = document.createElement("div");
+            card.className = `p-3 rounded-xl border-2 border-slate-100 flex justify-between items-center bg-slate-50`;
+            card.innerHTML = `
+                    <div class="flex flex-col"><span class="font-bold text-slate-800 text-sm">${p.name}</span><span class="text-[8px] font-black uppercase text-slate-400 italic">Đang quay...</span></div>
+                    <div class="flex items-center gap-2"><span class="text-xl font-black slot-machine-num is-rolling" id="anim-${p.name}">?</span></div>
+                `;
+            list.appendChild(card);
+          });
+
+        // Chạy hiệu ứng số ngẫu nhiên trong 1.5 giây
+        const startTime = Date.now();
+        const duration = 1200;
+
+        while (Date.now() - startTime < duration) {
+          document.getElementById("masterAnimNum").textContent =
+            Math.floor(Math.random() * 10) + 1;
+          players
+            .filter((p) => p.name !== currentMasterName)
+            .forEach((p) => {
+              const el = document.getElementById(`anim-${p.name}`);
+              if (el) el.textContent = Math.floor(Math.random() * 10) + 1;
+            });
+          await new Promise((r) => setTimeout(r, 60));
+        }
+      }
+
+      function simulateRound() {
+        const masterName = currentMasterName;
+        const roundRolls = players.map((p) => ({
+          name: p.name,
+          roll: Math.floor(Math.random() * 10) + 1,
+        }));
+
+        const masterRoll = roundRolls.find((r) => r.name === masterName).roll;
+        let nextMasterCandidate = null;
+
+        roundRolls.forEach((res) => {
+          if (res.name === masterName) return;
+
+          let playerObj = players.find((p) => p.name === res.name);
+          let masterObj = players.find((p) => p.name === masterName);
+
+          let winPoints = res.roll === 10 ? 2 : 1;
+
+          if (res.roll > masterRoll) {
+            playerObj.score += winPoints;
+            masterObj.score -= 1;
+          } else if (res.roll < masterRoll) {
+            playerObj.score -= 1;
+            masterObj.score += 1;
+          }
+
+          if (res.roll === 10) nextMasterCandidate = res.name;
+        });
+
+        if (masterRoll === 10) nextMasterCandidate = masterName;
+        const oldMaster = currentMasterName;
+        if (nextMasterCandidate) currentMasterName = nextMasterCandidate;
+
+        return {
+          rolls: roundRolls,
+          master: masterName,
+          masterRoll: masterRoll,
+          newMaster: nextMasterCandidate,
+          oldMaster: oldMaster,
+        };
+      }
+
+      function displayRound(data) {
+        const masterSlot = document.getElementById("masterResultSlot");
+        const list = document.getElementById("playersList");
+        masterSlot.innerHTML = "";
+        list.innerHTML = "";
+
+        if (data.newMaster && data.newMaster !== data.oldMaster) {
+          newMasterNotice.innerHTML = `🏆 MASTER MỚI: ${data.newMaster.toUpperCase()} (Đạt số 10!)`;
+          newMasterNotice.classList.remove("hidden");
+        }
+
+        const mCard = document.createElement("div");
+        mCard.className =
+          "bg-slate-900 text-white p-5 rounded-2xl flex justify-between items-center shadow-lg animate-pop";
+        mCard.innerHTML = `
+                <div><span class="text-[9px] text-orange-400 font-black uppercase tracking-widest">Master</span><h3 class="text-xl font-black">${data.master}</h3></div>
+                <div class="bg-indigo-600 text-white w-12 h-12 flex items-center justify-center rounded-xl font-black text-2xl border border-white/20">${data.masterRoll}</div>
+            `;
+        masterSlot.appendChild(mCard);
+
+        data.rolls
+          .filter((r) => r.name !== data.master)
+          .forEach((p, idx) => {
+            let status = "HÒA";
+            let cardStyle = "bg-white border-slate-100 text-slate-400";
+            if (p.roll > data.masterRoll) {
+              status = p.roll === 10 ? "THẮNG x2" : "THẮNG";
+              cardStyle =
+                "bg-emerald-50 border-emerald-100 text-emerald-600 winner-glow";
+            } else if (p.roll < data.masterRoll) {
+              status = "THUA";
+              cardStyle = "bg-rose-50 border-rose-100 text-rose-600";
+            }
+
+            const card = document.createElement("div");
+            card.className = `p-3 rounded-xl border-2 flex justify-between items-center animate-pop ${cardStyle}`;
+            card.style.animationDelay = `${idx * 0.05}s`;
+            card.innerHTML = `
+                    <div class="flex flex-col"><span class="font-bold text-slate-800 text-sm">${p.name}</span><span class="text-[8px] font-black uppercase">${status}</span></div>
+                    <div class="flex items-center gap-2">${p.roll === 10 ? '<span class="text-lg">🔥</span>' : ""}<span class="text-xl font-black">${p.roll}</span></div>
+                `;
+            list.appendChild(card);
+          });
+      }
+    </script>
+  </body>
+</html>

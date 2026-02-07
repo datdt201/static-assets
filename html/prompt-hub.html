@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PromptVault - Bilingual AI Library</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #f8fafc;
+      }
+
+      .prompt-card:hover .copy-overlay {
+        opacity: 1;
+      }
+
+      .glass-effect {
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(8px);
+      }
+
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #e2e8f0;
+        border-radius: 10px;
+      }
+    </style>
+  </head>
+  <body class="flex h-screen overflow-hidden text-slate-800">
+    <!-- Sidebar Navigation -->
+    <aside
+      class="w-64 bg-white border-r border-slate-200 flex flex-col hidden md:flex"
+    >
+      <div class="p-6">
+        <h1 class="text-xl font-bold text-indigo-600 flex items-center gap-2">
+          <i class="fas fa-microchip"></i> PromptVault
+        </h1>
+      </div>
+
+      <nav class="flex-1 px-4 space-y-1">
+        <a
+          href="#"
+          class="flex items-center gap-3 px-3 py-2 bg-indigo-50 text-indigo-700 rounded-lg font-medium"
+        >
+          <i class="fas fa-th-large"></i> All Prompts
+        </a>
+        <a
+          href="#"
+          class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-50 rounded-lg transition"
+        >
+          <i class="fas fa-star"></i> Favorites
+        </a>
+        <div
+          class="pt-4 pb-2 text-xs font-semibold text-slate-400 uppercase tracking-wider px-3"
+        >
+          Categories
+        </div>
+        <a
+          href="#"
+          class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-50 rounded-lg transition"
+        >
+          <i class="fas fa-paint-brush"></i> Image Gen
+        </a>
+        <a
+          href="#"
+          class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-50 rounded-lg transition"
+        >
+          <i class="fas fa-code"></i> Coding
+        </a>
+        <a
+          href="#"
+          class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-50 rounded-lg transition"
+        >
+          <i class="fas fa-pen-nib"></i> Content Writing
+        </a>
+      </nav>
+
+      <div class="p-4 border-t border-slate-100">
+        <button
+          class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium"
+        >
+          <i class="fas fa-plus"></i> New Prompt
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col min-w-0">
+      <!-- Header -->
+      <header
+        class="h-16 bg-white border-bottom border-slate-200 flex items-center justify-between px-8 z-10"
+      >
+        <div class="flex-1 max-w-xl">
+          <div class="relative">
+            <i
+              class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+            ></i>
+            <input
+              type="text"
+              placeholder="Search prompts in EN or VN..."
+              class="w-full pl-10 pr-4 py-2 bg-slate-100 border-none rounded-full focus:ring-2 focus:ring-indigo-500 outline-none text-sm transition"
+            />
+          </div>
+        </div>
+        <div class="flex items-center gap-4">
+          <button class="p-2 text-slate-500 hover:bg-slate-100 rounded-full">
+            <i class="fas fa-bell"></i>
+          </button>
+          <div
+            class="h-8 w-8 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center font-bold text-xs border border-indigo-200"
+          >
+            JD
+          </div>
+        </div>
+      </header>
+
+      <!-- Gallery Grid -->
+      <div class="flex-1 overflow-y-auto p-8 custom-scrollbar">
+        <div class="flex justify-between items-end mb-8">
+          <div>
+            <h2 class="text-2xl font-bold text-slate-900">My Library</h2>
+            <p class="text-slate-500">Manage and reuse your best AI prompts.</p>
+          </div>
+          <div
+            class="flex gap-2 bg-white p-1 rounded-lg border border-slate-200 shadow-sm"
+          >
+            <button class="px-3 py-1 text-xs font-medium bg-slate-100 rounded">
+              Grid
+            </button>
+            <button
+              class="px-3 py-1 text-xs font-medium text-slate-500 hover:bg-slate-50 rounded"
+            >
+              List
+            </button>
+          </div>
+        </div>
+
+        <div
+          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+        >
+          <!-- Card 1 -->
+          <div
+            onclick="toggleModal()"
+            class="prompt-card bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden cursor-pointer hover:shadow-md hover:border-indigo-300 transition-all group"
+          >
+            <div class="relative h-48 overflow-hidden bg-slate-200">
+              <img
+                src="https://images.unsplash.com/photo-1675557009875-436f453473f4?q=80&w=500&auto=format&fit=crop"
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                alt="Prompt Result"
+              />
+              <div
+                class="copy-overlay absolute inset-0 bg-slate-900/40 flex items-center justify-center gap-3 opacity-0 transition-opacity"
+              >
+                <button
+                  title="Copy English"
+                  class="p-3 bg-white text-slate-900 rounded-full hover:bg-indigo-500 hover:text-white transition"
+                >
+                  <i class="fas fa-copy"></i> EN
+                </button>
+                <button
+                  title="Copy Vietnamese"
+                  class="p-3 bg-white text-slate-900 rounded-full hover:bg-indigo-500 hover:text-white transition"
+                >
+                  <i class="fas fa-copy"></i> VN
+                </button>
+              </div>
+            </div>
+            <div class="p-4">
+              <span
+                class="text-[10px] font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded"
+                >Image Gen</span
+              >
+              <h3 class="mt-2 font-semibold text-slate-800 line-clamp-1">
+                Cyberpunk Cityscape Neon
+              </h3>
+              <p class="mt-1 text-sm text-slate-500 line-clamp-2">
+                Detailed prompt for Midjourney V6 with neon aesthetic...
+              </p>
+            </div>
+          </div>
+
+          <!-- Card 2 -->
+          <div
+            class="prompt-card bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden cursor-pointer hover:shadow-md hover:border-indigo-300 transition-all group"
+          >
+            <div class="relative h-48 overflow-hidden bg-slate-200">
+              <img
+                src="https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=500&auto=format&fit=crop"
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                alt="Prompt Result"
+              />
+              <div
+                class="copy-overlay absolute inset-0 bg-slate-900/40 flex items-center justify-center gap-3 opacity-0 transition-opacity"
+              >
+                <button
+                  class="p-3 bg-white text-slate-900 rounded-full hover:bg-indigo-500 hover:text-white transition"
+                >
+                  <i class="fas fa-copy"></i> EN
+                </button>
+                <button
+                  class="p-3 bg-white text-slate-900 rounded-full hover:bg-indigo-500 hover:text-white transition"
+                >
+                  <i class="fas fa-copy"></i> VN
+                </button>
+              </div>
+            </div>
+            <div class="p-4">
+              <span
+                class="text-[10px] font-bold uppercase tracking-wider text-green-600 bg-green-50 px-2 py-0.5 rounded"
+                >Coding</span
+              >
+              <h3 class="mt-2 font-semibold text-slate-800 line-clamp-1">
+                React Tailwind Layout Helper
+              </h3>
+              <p class="mt-1 text-sm text-slate-500 line-clamp-2">
+                Generate clean responsive sidebars with Lucide icons...
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Detail View Modal (Hidden by Default) -->
+    <div
+      id="detailModal"
+      class="fixed inset-0 z-50 flex items-center justify-end bg-slate-900/30 backdrop-blur-sm hidden"
+    >
+      <div
+        class="w-full max-w-3xl h-full bg-white shadow-2xl flex flex-col animate-in slide-in-from-right duration-300"
+      >
+        <!-- Modal Header -->
+        <div
+          class="flex items-center justify-between p-6 border-b border-slate-100"
+        >
+          <div class="flex items-center gap-4">
+            <button
+              onclick="toggleModal()"
+              class="p-2 text-slate-400 hover:bg-slate-100 rounded-lg"
+            >
+              <i class="fas fa-times"></i>
+            </button>
+            <h2 class="text-xl font-bold text-slate-800">Prompt Details</h2>
+          </div>
+          <div class="flex gap-2">
+            <button
+              class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 border border-slate-200 rounded-lg"
+            >
+              Delete
+            </button>
+            <button
+              class="px-4 py-2 text-sm font-medium bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg shadow-sm"
+            >
+              Save Changes
+            </button>
+          </div>
+        </div>
+
+        <!-- Modal Content -->
+        <div class="flex-1 overflow-y-auto p-8 custom-scrollbar">
+          <!-- Top Section: Visual and Title -->
+          <div class="flex flex-col md:flex-row gap-8 mb-8">
+            <div class="w-full md:w-1/3">
+              <label
+                class="block text-xs font-bold text-slate-400 uppercase mb-2"
+                >Preview Image</label
+              >
+              <div
+                class="relative aspect-square rounded-xl overflow-hidden border-2 border-dashed border-slate-200 flex items-center justify-center bg-slate-50 group"
+              >
+                <img
+                  src="https://images.unsplash.com/photo-1675557009875-436f453473f4?q=80&w=500&auto=format&fit=crop"
+                  class="w-full h-full object-cover opacity-80"
+                  id="previewImg"
+                />
+                <div
+                  class="absolute inset-0 bg-slate-900/20 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity cursor-pointer"
+                >
+                  <span
+                    class="bg-white px-3 py-1 rounded text-xs font-semibold shadow-sm"
+                    >Replace Image</span
+                  >
+                </div>
+              </div>
+            </div>
+            <div class="flex-1 space-y-4">
+              <div>
+                <label
+                  class="block text-xs font-bold text-slate-400 uppercase mb-2"
+                  >Title</label
+                >
+                <input
+                  type="text"
+                  value="Cyberpunk Cityscape Neon"
+                  class="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                />
+              </div>
+              <div>
+                <label
+                  class="block text-xs font-bold text-slate-400 uppercase mb-2"
+                  >Category</label
+                >
+                <select
+                  class="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none appearance-none bg-white"
+                >
+                  <option>Image Gen</option>
+                  <option>Coding</option>
+                  <option>Writing</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bilingual Editor Section -->
+          <div class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 relative">
+              <!-- English Box -->
+              <div class="space-y-2">
+                <div class="flex justify-between items-center">
+                  <label class="text-xs font-bold text-slate-400 uppercase"
+                    >English Prompt</label
+                  >
+                  <button class="text-xs text-indigo-600 hover:underline">
+                    <i class="fas fa-copy"></i> Copy
+                  </button>
+                </div>
+                <textarea
+                  rows="8"
+                  class="w-full p-4 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm resize-none"
+                  placeholder="Enter English prompt here..."
+                >
+A futuristic cyberpunk cityscape with towering neon-lit skyscrapers, bustling flying car traffic, heavy rain reflecting street lights on asphalt, cinematic lighting, hyper-realistic, 8k.</textarea
+                >
+              </div>
+
+              <!-- Translation Trigger Button (Desktop) -->
+              <div
+                class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 hidden md:flex"
+              >
+                <button
+                  title="Translate"
+                  class="h-10 w-10 bg-white border border-slate-200 text-indigo-600 rounded-full shadow-md hover:shadow-lg hover:scale-110 transition-all flex items-center justify-center"
+                >
+                  <i class="fas fa-exchange-alt"></i>
+                </button>
+              </div>
+
+              <!-- Vietnamese Box -->
+              <div class="space-y-2">
+                <div class="flex justify-between items-center">
+                  <label class="text-xs font-bold text-slate-400 uppercase"
+                    >Vietnamese Prompt (Tiếng Việt)</label
+                  >
+                  <button class="text-xs text-indigo-600 hover:underline">
+                    <i class="fas fa-copy"></i> Copy
+                  </button>
+                </div>
+                <textarea
+                  rows="8"
+                  class="w-full p-4 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm resize-none"
+                  placeholder="Nhập bản dịch tiếng Việt tại đây..."
+                >
+Một cảnh quan thành phố cyberpunk tương lai với những tòa nhà chọc trời rực rỡ ánh đèn neon, giao thông xe bay nhộn nhịp, mưa lớn phản chiếu ánh đèn đường trên mặt đường nhựa, ánh sáng điện ảnh, siêu thực, 8k.</textarea
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- Notes Section -->
+          <div class="mt-8">
+            <label class="block text-xs font-bold text-slate-400 uppercase mb-2"
+              >Technical Notes / Success Tips</label
+            >
+            <textarea
+              rows="3"
+              class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm resize-none"
+              placeholder="Mention specific models, versions, or settings that work best..."
+            ></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notification Toast (Hidden) -->
+    <div
+      id="toast"
+      class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-full shadow-xl flex items-center gap-3 transform translate-y-32 transition-transform duration-300 z-[100]"
+    >
+      <i class="fas fa-check-circle text-green-400"></i>
+      <span class="text-sm font-medium">Prompt copied to clipboard!</span>
+    </div>
+
+    <script>
+      function toggleModal() {
+        const modal = document.getElementById("detailModal");
+        modal.classList.toggle("hidden");
+      }
+
+      // Simple toast animation for demonstration
+      function showToast() {
+        const toast = document.getElementById("toast");
+        toast.classList.remove("translate-y-32");
+        setTimeout(() => {
+          toast.classList.add("translate-y-32");
+        }, 3000);
+      }
+    </script>
+  </body>
+</html>

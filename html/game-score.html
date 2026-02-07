@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Group Scoreboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap");
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #f3f4f6;
+      }
+      .score-card {
+        transition: all 0.2s ease;
+      }
+      .score-card:hover {
+        transform: translateY(-2px);
+      }
+    </style>
+  </head>
+  <body class="p-4 md:p-8 text-slate-800">
+    <div class="max-w-2xl mx-auto">
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">Ghi Điểm Nhóm</h1>
+        <p class="text-gray-600">Quản lý điểm số trò chơi dễ dàng</p>
+      </div>
+
+      <!-- Controls -->
+      <div class="bg-white p-4 rounded-xl shadow-sm mb-6 flex flex-wrap gap-3">
+        <input
+          type="text"
+          id="playerNameInput"
+          placeholder="Nhập tên người chơi mới..."
+          class="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <button
+          onclick="addPlayer()"
+          class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold transition shadow-md"
+        >
+          Thêm người
+        </button>
+        <button
+          onclick="resetAll()"
+          class="bg-red-100 hover:bg-red-200 text-red-700 px-6 py-2 rounded-lg font-semibold transition border border-red-200"
+        >
+          Reset Tất Cả
+        </button>
+      </div>
+
+      <!-- Players List -->
+      <div id="playersList" class="space-y-4">
+        <!-- Players will appear here -->
+      </div>
+
+      <!-- Empty State -->
+      <div id="emptyState" class="hidden text-center py-12 text-gray-400">
+        <svg
+          class="w-16 h-16 mx-auto mb-4 opacity-20"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+          ></path>
+        </svg>
+        <p>Chưa có người chơi nào. Hãy thêm để bắt đầu!</p>
+      </div>
+    </div>
+
+    <!-- Custom Toast/Message Notification -->
+    <div
+      id="toast"
+      class="fixed bottom-5 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-full opacity-0 transition-opacity pointer-events-none shadow-xl z-50"
+    >
+      Đã cập nhật
+    </div>
+
+    <script>
+      // Initial list of players
+      const initialNames = [
+        "Cương",
+        "Hùng",
+        "Ngọc",
+        "An",
+        "Vinh",
+        "Hải",
+        "Đạt",
+      ];
+
+      let players = initialNames.map((name, index) => ({
+        id: Date.now() + index,
+        name: name,
+        score: 0,
+      }));
+
+      function addPlayer() {
+        const input = document.getElementById("playerNameInput");
+        const name = input.value.trim();
+
+        if (name === "") {
+          showToast("Vui lòng nhập tên!");
+          return;
+        }
+
+        const newPlayer = {
+          id: Date.now(),
+          name: name,
+          score: 0,
+        };
+
+        players.push(newPlayer);
+        input.value = "";
+        render();
+        showToast(`Đã thêm ${name}`);
+      }
+
+      function updateScore(id, delta) {
+        players = players.map((p) => {
+          if (p.id === id) {
+            return { ...p, score: p.score + delta };
+          }
+          return p;
+        });
+        render();
+      }
+
+      function resetPlayer(id) {
+        players = players.map((p) => {
+          if (p.id === id) {
+            return { ...p, score: 0 };
+          }
+          return p;
+        });
+        render();
+        showToast("Đã reset điểm");
+      }
+
+      function removePlayer(id) {
+        players = players.filter((p) => p.id !== id);
+        render();
+      }
+
+      function resetAll() {
+        if (players.length === 0) return;
+        players = players.map((p) => ({ ...p, score: 0 }));
+        render();
+        showToast("Đã reset toàn bộ điểm số");
+      }
+
+      function showToast(msg) {
+        const toast = document.getElementById("toast");
+        toast.innerText = msg;
+        toast.style.opacity = "1";
+        setTimeout(() => {
+          toast.style.opacity = "0";
+        }, 2000);
+      }
+
+      function render() {
+        const list = document.getElementById("playersList");
+        const emptyState = document.getElementById("emptyState");
+
+        if (players.length === 0) {
+          emptyState.classList.remove("hidden");
+          list.innerHTML = "";
+          return;
+        } else {
+          emptyState.classList.add("hidden");
+        }
+
+        list.innerHTML = players
+          .map(
+            (player) => `
+                <div class="score-card bg-white p-5 rounded-xl shadow-md border-l-8 border-blue-500 flex items-center justify-between">
+                    <div class="flex-1">
+                        <h3 class="text-xl font-bold text-gray-800">${player.name}</h3>
+                        <p class="text-3xl font-black text-blue-600 mt-1">${player.score}</p>
+                    </div>
+                    
+                    <div class="flex items-center gap-2">
+                        <!-- Subtract score -->
+                        <button onclick="updateScore(${player.id}, -1)" class="w-10 h-10 flex items-center justify-center bg-orange-100 text-orange-600 rounded-full hover:bg-orange-200 transition font-bold text-xl active:scale-95">
+                            -
+                        </button>
+                        
+                        <!-- Add score -->
+                        <button onclick="updateScore(${player.id}, 1)" class="w-12 h-12 flex items-center justify-center bg-green-500 text-white rounded-full hover:bg-green-600 transition font-bold text-2xl shadow-lg active:scale-95">
+                            +
+                        </button>
+                        
+                        <div class="w-px h-8 bg-gray-200 mx-2"></div>
+
+                        <!-- Reset individual -->
+                        <button onclick="resetPlayer(${player.id})" class="p-2 text-gray-400 hover:text-red-500 transition active:rotate-180 duration-500" title="Reset điểm">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            </svg>
+                        </button>
+
+                        <!-- Remove player -->
+                        <button onclick="removePlayer(${player.id})" class="p-2 text-gray-400 hover:text-gray-800 transition">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            `,
+          )
+          .join("");
+      }
+
+      // Initialize display
+      window.onload = render;
+
+      // Allow Enter key to add player
+      document
+        .getElementById("playerNameInput")
+        .addEventListener("keypress", function (e) {
+          if (e.key === "Enter") {
+            addPlayer();
+          }
+        });
+    </script>
+  </body>
+</html>
